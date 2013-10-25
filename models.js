@@ -3,7 +3,7 @@ var mongoose = require('mongoose'),
 
 function ready (callback) {
 
-	mongoose.connect('mongodb://localhost/graph', function(error){
+	mongoose.connect('mongodb://192.168.2.15/graph', function(error){
 		if (error) 
 			callback(error);
 		console.log('Mongoose connected: /graph');

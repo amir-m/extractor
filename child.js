@@ -1,6 +1,7 @@
 var https = require('https'),
 	models = require('./models'),
 	constants = require('./constants'),
+	Range = require('./helper').Range,
 	USER_ID = 11121738,
 	CLIENT_ID = constants.CLIENT_ID,
 	CLIENT_SERCRET = constants.CLIENT_SERCRETs,
@@ -10,7 +11,8 @@ var https = require('https'),
 	nodesLeft = 0, 
 	next,
 	_offset, 
-	rule;
+	rule,
+	range;
 
 console.log('child: %s', process.pid);
 
@@ -28,6 +30,8 @@ require('colors').setTheme({
 });
 
 process.on('message', init); 
+
+range = new Range();
 
 var extractors = {
 	trackExtractor: trackExtractor
@@ -69,14 +73,15 @@ function extract() {
 
 		nodesLeft = docs.length;
 
+		range.set(0, docs.length, docs.length);
+
 		for (var i = 0; i < docs.length; ++i) {
 
 			
 
-			for (var j in rule.updates)
-				docs[i][j] = rule.updates[j];
+			// for (var j in rule.updates)
+			// 	docs[i][j] = rule.updates[j];
 
-			docs[i].save();
 
 			(function(i){
 					
@@ -123,13 +128,14 @@ function trackExtractor(offset, node, index) {
 							
 				if (node.tracks.indexOf(data[i].id) == -1) node.tracks.push(data[i].id);
 
+				range.increment()
+				setTimeout(function(){
+					range.increment(-1);
+				}, 150);
 				// models.Track.create(data[i], function(error){
 				// 	if (error) throw error;
 				// });
 		
-				models.Track.update({id: data[i].id}, data[i], {upsert: true}, function(error){
-					if (error) throw error;
-				});
 			};
 
 			offset = offset == 0 ? 51 : offset + 50;
@@ -140,17 +146,22 @@ function trackExtractor(offset, node, index) {
 
 				--nodesLeft;				
 
-				node.tracksStatus = 2;
-				node.save(function(error){
-					if (error) throw error;
-					console.log('Fin %s %s. %s node left...', node.username, index.toString().info, nodesLeft.toString().info);
+				// node.tracksStatus = 2;
+				// node.save(function(error){
+				// 	if (error) throw error;
+				// 	console.log('Fin %s %s. %s node left...', node.username, index.toString().info, nodesLeft.toString().info);
 				
-					if (nodesLeft == 0) {
-						finish();
-					}
-					node = null;
-					return;
-				});
+				// 	if (nodesLeft == 0) {
+				// 		finish();
+				// 	}
+				// 	node = null;
+				// 	return;
+				// });
+				setTimeout(function(){
+						// console.log('about to change');
+					range.increment(-1);
+				}, 150);
+
 			}
 			else
 				trackExtractor(offset, node, index);
@@ -172,7 +183,21 @@ function finish () {
 		process.send(rule);
 	}, 1000);
 	global.gc();
-}
+};
+
+range.on('set', function(l, u, v){
+	console.log('Set lower: %s upper: %s value: %s'.verbose, l, u, v);
+});
+
+range.on('change', function(value){
+	console.log('new value: %s'.input, value);
+});
+
+range.on('lower', function(){
+	console.log('finished'.info);
+	rule.finished = true;
+	process.send(rule);
+});
 
 
 global.gc();

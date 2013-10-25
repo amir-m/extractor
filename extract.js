@@ -54,7 +54,7 @@ var ruleCount = 4,
 			id: 4,
 			offset: 0,
 			limit: 50,
-			tick: 1000,
+			tick: 500,
 			nodeCount: 1, 
 			nodesLeft: 50,
 			extractor: 'trackExtractor',
@@ -68,7 +68,7 @@ var ruleCount = 4,
 		}
 	};
 
-prepare(require('child_process').fork(__dirname + '/child.js'), rules[2]);
+prepare(require('child_process').fork(__dirname + '/child.js'), rules[4]);
 
 function prepare(child, message) {
 	child.on('message', function(message){
