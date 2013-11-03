@@ -3,7 +3,7 @@ var events = require('events');
 function Range (options) {
 	/*
 	types: 
-		l0: unlimited upper boud, lowerBound = 0
+		l0: unlimited upperBound, lowerBound = 0
 	*/
 	var options = options || {};
 	this.type = options.type || 'l0'
