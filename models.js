@@ -4,8 +4,7 @@ var mongoose = require('mongoose'),
 function ready (callback) {
 
 	mongoose.connect('mongodb://192.168.2.15/graph', function(error){
-		if (error) 
-			callback(error);
+		if (error) return callback(error);
 		console.log('Mongoose connected: /graph');
 		callback();
 	});
